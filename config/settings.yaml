@@ -1,0 +1,16 @@
+default:
+  app: Taranis
+  host: 0.0.0.0
+  port: 8000
+  debug: false
+  restplus:
+    validate: true
+    maskSwagger: false
+    error404Help: false
+  swagger:
+    docExpansion: list
+    title:  Taranis
+    description: Taranis
+    version: v0.1.0
+
+development:
