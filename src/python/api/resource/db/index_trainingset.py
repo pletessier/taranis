@@ -20,24 +20,16 @@ class IndexTrainingSetResource(Resource):
     @ns_db.response(404, 'IndexTrainingSet not found')
     @ns_db.response(500, 'Internal server error')
     def get(self, db_name):
-        '''
-        Get the index trainingset
-        '''
-        trainingset = None
-        if trainingset is None:
-            abort(404, 'trainingset not found')
-        return trainingset
+        """Get the index trainingset"""
+        abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @ns_db.doc('delete_index_trainingset')
     @api.marshal_with(IndexTrainingSetApiModel, code=HTTPStatus.OK)
     @ns_db.response(404, 'IndexTrainingSet not found')
     @ns_db.response(500, 'Internal server error')
     def delete(self, db_name):
-        '''
-        Delete an index trainingset
-        '''
-        trainingset = None
-        return trainingset
+        """Delete an index trainingset"""
+        abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @ns_db.doc('post_index_model')
     @ns_db.expect(IndexTrainingSetApiModel)
@@ -45,8 +37,5 @@ class IndexTrainingSetResource(Resource):
     @ns_db.response(404, 'IndexTrainingSet not found')
     @ns_db.response(500, 'Internal server error')
     def post(self, db_name):
-        '''
-        Add vectors to training set
-        '''
-        trainingset = None
-        return trainingset
+        """Add vectors to training set"""
+        abort(HTTPStatus.NOT_IMPLEMENTED)

@@ -23,13 +23,8 @@ class IndexCollectionResource(Resource):
     @ns_db.response(404, 'Index not found')
     @ns_db.response(500, 'Internal server error')
     def get(self, db_name):
-        '''
-        List all indices
-        '''
-        index = None
-        if index is None:
-            abort(404, 'Index not found')
-        return index
+        """List all indices"""
+        abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @ns_db.doc('post_index')
     @api.expect(NewIndexApiModel)
@@ -37,8 +32,5 @@ class IndexCollectionResource(Resource):
     @ns_db.response(HTTPStatus.CONFLICT, 'Index name already exists')
     @ns_db.response(500, 'Internal server error')
     def post(self, db_name):
-        '''
-        Create an index
-        '''
-        index = api.payload
-        return index
+        """Create an index"""
+        abort(HTTPStatus.NOT_IMPLEMENTED)

@@ -20,24 +20,16 @@ class IndexModelResource(Resource):
     @ns_db.response(404, 'IndexModel not found')
     @ns_db.response(500, 'Internal server error')
     def get(self, db_name):
-        '''
-        Get the index model
-        '''
-        model = None
-        if model is None:
-            abort(404, 'Model not found')
-        return model
+        """Get the index model"""
+        abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @ns_db.doc('delete_index_model')
     @api.marshal_with(IndexModelApiModel, code=HTTPStatus.OK)
     @ns_db.response(404, 'IndexModel not found')
     @ns_db.response(500, 'Internal server error')
     def delete(self, db_name):
-        '''
-        Delete the index model
-        '''
-        model = None
-        return model
+        """Delete the index model"""
+        abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @ns_db.doc('put_index_model')
     @ns_db.expect(IndexModelApiModel)
@@ -45,19 +37,13 @@ class IndexModelResource(Resource):
     @ns_db.response(404, 'IndexModel not found')
     @ns_db.response(500, 'Internal server error')
     def put(self, db_name):
-        '''
-        Set the index model
-        '''
-        model = None
-        return model
+        """Set the index model"""
+        abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @ns_db.doc('post_index_model')
     @api.marshal_with(IndexModelApiModel, code=HTTPStatus.OK)
     @ns_db.response(404, 'IndexModel not found')
     @ns_db.response(500, 'Internal server error')
     def post(self, db_name):
-        '''
-        Train the index model
-        '''
-        model = None
-        return model
+        """Train the index model"""
+        abort(HTTPStatus.NOT_IMPLEMENTED)
