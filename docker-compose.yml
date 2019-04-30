@@ -3,7 +3,7 @@ version: '3.7'
 services:
   mongo:
     image: mongo:4.0
-    restart: always
+    restart: on-failure
     ports:
       - 27017:27017
     environment:
@@ -12,9 +12,24 @@ services:
 
   mongo-express:
     image: mongo-express
-    restart: always
+    restart: on-failure
     ports:
       - 27018:8081
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: password
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    command: redis-server --appendonly yes
+    restart: on-failure
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: on-failure
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"

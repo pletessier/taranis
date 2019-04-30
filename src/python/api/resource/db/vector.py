@@ -9,7 +9,7 @@ from flask_restplus._http import HTTPStatus
 from werkzeug.datastructures import FileStorage
 
 from api.model.VectorApiModel import VectorModel, VectorListModel
-from service.db_service import DBService
+from service.taranis_service import TaranisService
 from src.python.api.restplus import api, ns_db
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class VectorResource(Resource):
 
     def __init__(self, api=None, *args, **kwargs):
         super().__init__(api, *args, **kwargs)
-        self.db_service = DBService()
+        self.db_service = TaranisService()
 
     @ns_db.doc('get_vectors')
     @api.marshal_with(VectorModel, code=HTTPStatus.OK)

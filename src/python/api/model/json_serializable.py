@@ -47,6 +47,12 @@ class JsonClassSerializable(json.JSONEncoder):
             sort_keys=True
         )
 
+    def todict(self):
+
+        raw_dict = self.__dict__
+        filtered_dict = {k: raw_dict[k] for k in self.serializables if k in raw_dict}
+        return filtered_dict
+
     def dump(self, file):
         with open(file, 'w') as outfile:
             json.dump(
@@ -73,10 +79,6 @@ class JsonClassSerializable(json.JSONEncoder):
             string,
             object_hook=self.json_to_class
         )
-
-    # def __init__(self, **kwargs):
-    #     for key in kwargs:
-    #         setattr(self, key, kwargs[key])
 
     def __init__(self, *initial_data, **kwargs):
         for dictionary in initial_data:

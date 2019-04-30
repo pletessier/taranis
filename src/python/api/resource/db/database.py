@@ -5,8 +5,8 @@ import logging
 from flask_restplus import Resource, abort
 from flask_restplus._http import HTTPStatus
 
-from api.model.DatabaseModel import Model
-from service.db_service import DBService
+from api.model.DatabaseModel import DatabaseModel
+from service.taranis_service import TaranisService
 from src.python.api.restplus import api, ns_db
 
 logger = logging.getLogger(__name__)
@@ -17,10 +17,10 @@ class DatabaseResource(Resource):
 
     def __init__(self, api=None, *args, **kwargs):
         super().__init__(api, *args, **kwargs)
-        self.db_service = DBService()
+        self.db_service = TaranisService()
 
     @ns_db.doc('get_db')
-    @api.marshal_with(Model, code=HTTPStatus.OK)
+    @api.marshal_with(DatabaseModel.DatabaseModel, code=HTTPStatus.OK)
     @ns_db.response(HTTPStatus.NOT_FOUND, 'Database not found')
     @ns_db.response(HTTPStatus.INTERNAL_SERVER_ERROR, 'Internal server error')
     def get(self, db_name):

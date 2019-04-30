@@ -6,8 +6,8 @@ import logging
 from flask_restplus import Resource
 from flask_restplus._http import HTTPStatus
 
-from api.model.DatabaseModel import DatabaseModel, CreationModel, Model
-from service.db_service import DBService
+from api.model.DatabaseModel import DatabaseModel
+from service.taranis_service import TaranisService
 from src.python.api.restplus import api, ns_db
 
 logger = logging.getLogger(__name__)
@@ -18,10 +18,10 @@ class DatabaseCollectionResource(Resource):
 
     def __init__(self, api=None, *args, **kwargs):
         super().__init__(api, *args, **kwargs)
-        self.db_service = DBService()
+        self.db_service = TaranisService()
 
     @ns_db.doc('list_db')
-    @api.marshal_with(Model, as_list=True, code=HTTPStatus.OK)
+    @api.marshal_with(DatabaseModel.DatabaseModel, as_list=True, code=HTTPStatus.OK)
     @ns_db.response(500, 'Internal server error')
     def get(self):
         """List all databases"""
@@ -29,9 +29,9 @@ class DatabaseCollectionResource(Resource):
         return databases, HTTPStatus.OK
 
     @ns_db.doc('post_db')
-    @api.expect(CreationModel)
-    @api.doc(model='CreationModel', body=CreationModel)
-    @api.marshal_with(Model, code=HTTPStatus.CREATED)
+    @api.expect(DatabaseModel.DatabaseCreationModel)
+    @api.doc(model='DatabaseCreationModel', body=DatabaseModel.DatabaseCreationModel)
+    @api.marshal_with(DatabaseModel.DatabaseModel, code=HTTPStatus.CREATED)
     @ns_db.response(HTTPStatus.CONFLICT, 'Database name already exists')
     @ns_db.response(HTTPStatus.INTERNAL_SERVER_ERROR, 'Internal server error')
     def post(self):
