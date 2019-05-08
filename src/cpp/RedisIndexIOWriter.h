@@ -6,21 +6,24 @@
 #define CPP_TARANIS_REDISINDEXIOWRITER_H
 
 #include <faiss/AuxIndexStructures.h>
+#include <cpp_redis/core/client.hpp>
 
 using namespace faiss;
 
 class RedisIndexIOWriter : public IOWriter {
 
-//    FILE *f = nullptr;
-    bool need_close = false;
-
 public:
-    RedisIndexIOWriter();
+    RedisIndexIOWriter(cpp_redis::client* redis, std::string db_name, std::string index_name);
 
     ~RedisIndexIOWriter();
 
-
     size_t operator()(const void *ptr, size_t size, size_t nitems) override;
+
+    bool close();
+
+private:
+    cpp_redis::client* redis;
+    std::string key;
 };
 
 

@@ -6,9 +6,6 @@
 #define TARANIS_TARANIS_H
 
 
-class taranis {
-
-};
 
 
 #endif //TARANIS_TARANIS_H

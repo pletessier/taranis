@@ -26,7 +26,7 @@ class IndexResource(Resource):
     @ns_db.response(HTTPStatus.INTERNAL_SERVER_ERROR, 'Internal server error')
     def get(self, db_name, index_name):
         """Get an index"""
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        return self.db_service.get_index(db_name, index_name)
 
     @ns_db.doc('delete_index')
     # @api.marshal_with(IndexModel.IndexCreationModel, code=HTTPStatus.OK)

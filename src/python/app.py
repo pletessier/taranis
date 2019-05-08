@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from dynaconf import settings
 from flask import Flask, Blueprint
@@ -44,4 +45,6 @@ def main():
 
 
 if __name__ == "__main__":
+
+    # print (sys.path)
     main()

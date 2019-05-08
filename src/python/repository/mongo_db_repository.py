@@ -1,5 +1,6 @@
 import json
 
+import numpy as np
 import pymongo
 from pymongo import MongoClient
 from pymongo.results import DeleteResult
@@ -46,7 +47,7 @@ class MongoDBDatabaseRepository(AbstractDatabaseRepository):
         return self.databases_collection.find_one(dict(name=name))
 
     def delete_one_database_by_name(self, name):
-        res : DeleteResult = self.databases_collection.delete_one(dict(name=name))
+        res: DeleteResult = self.databases_collection.delete_one(dict(name=name))
         return res.deleted_count == 1
 
     def delete_vectors_by_database_name(self, name: str) -> bool:
@@ -67,11 +68,15 @@ class MongoDBDatabaseRepository(AbstractDatabaseRepository):
         res: DeleteResult = self.indices_collection.delete_one(dict(name=index.name, db_name=index.db_name))
         return res.deleted_count == 1
 
+    def find_one_index_by_index_name_and_db_name(self, index_name: str, db_name: str) -> object:
+        return self.indices_collection.find_one(dict(name=index_name, db_name=db_name))
 
-
-
-
-
-
-
-
+    def find_vectors_by_database_name(self, name: str) -> (np.ndarray, int):
+        cursor = self.vector_collection.find(dict(db=name))
+        dimension = 128
+        vectors = np.empty((cursor.count(), dimension), dtype=np.dtype('Float32'))
+        i = 0
+        for v in cursor:
+            vectors[i, :] = np.frombuffer(v["data"], dtype=np.dtype('Float32'))
+            i += 1
+        return vectors, cursor.count()

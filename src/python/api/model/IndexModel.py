@@ -14,7 +14,7 @@ class IndexModel(JsonClassSerializable):
 
     IndexCreationModel = api.model('IndexCreationModel', {
         'name': fields.String(required=True, description='Index name'),
-        "config": fields.String(required=True, description='Index config')
+        "config": fields.Raw(required=True, description='Index config')
     })
 
     IndexModel = api.inherit('IndexModel', IndexCreationModel, {
