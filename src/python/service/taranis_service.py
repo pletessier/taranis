@@ -104,6 +104,7 @@ class TaranisService(object):
     def delete_index(self, db_name, index_name):
         index = IndexModel(db_name=db_name, name=index_name)
         res = self.repo.delete_one_index(index)
+        self.faiss_wrapper.delete_index(db_name, index_name)
 
     def get_index(self, db_name, index_name):
         self.faiss_wrapper.get_index(db_name, index_name)
@@ -111,5 +112,16 @@ class TaranisService(object):
         return res
 
     def train_index(self, db_name, index_name):
-        vectors, count = self.repo.find_vectors_by_database_name(db_name)
+        vectors, count, ids = self.repo.find_vectors_by_database_name(db_name, limit=100000, skip=0)
         self.faiss_wrapper.train_model(db_name, index_name, count, vectors)
+
+    def reindex(self, db_name, index_name):
+
+        n_processed = 0
+        while True:
+            vectors, count, ids = self.repo.find_vectors_by_database_name(db_name, limit=10000, skip=n_processed)
+            if not count > 0:
+                break
+            n_processed += count
+            print("Found {} vectors to index".format(count))
+            self.faiss_wrapper.encode_vectors(db_name, index_name, count, vectors, ids)

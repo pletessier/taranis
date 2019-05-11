@@ -30,12 +30,16 @@ public:
     int create_index(std::string db_name, std::string index_name, int dimension, const char *index_type,
                      faiss::MetricType metric_type, int n_probes);
 
+    int delete_index(std::string db_name, std::string index_name);
+
     bool get_index(std::string db_name, std::string index_name);
 
     bool train_model(std::string db_name, std::string index_name, int count, py::array_t<float> vectors);
 
+    bool encode_vectors(std::string db_name, std::string index_name, int count, py::array_t<float> vectors, py::array_t<int64_t> ids);
+
 private:
-    RedisService *redis;
+    RedisService *data_service;
 
 };
 

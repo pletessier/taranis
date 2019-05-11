@@ -71,12 +71,16 @@ class MongoDBDatabaseRepository(AbstractDatabaseRepository):
     def find_one_index_by_index_name_and_db_name(self, index_name: str, db_name: str) -> object:
         return self.indices_collection.find_one(dict(name=index_name, db_name=db_name))
 
-    def find_vectors_by_database_name(self, name: str) -> (np.ndarray, int):
-        cursor = self.vector_collection.find(dict(db=name))
+    def find_vectors_by_database_name(self, name: str, limit=100000, skip=0) -> (np.ndarray, int):
+        cursor = self.vector_collection.find(dict(db=name)).skip(skip).limit(limit)
         dimension = 128
-        vectors = np.empty((cursor.count(), dimension), dtype=np.dtype('Float32'))
+        count = cursor.count(with_limit_and_skip=True)
+
+        vectors = np.empty((count, dimension), dtype=np.dtype('Float32'))
+        ids = np.empty((count), dtype=np.dtype('int64'))
         i = 0
         for v in cursor:
             vectors[i, :] = np.frombuffer(v["data"], dtype=np.dtype('Float32'))
+            ids[i] = v["id"]
             i += 1
-        return vectors, cursor.count()
+        return vectors, count, ids

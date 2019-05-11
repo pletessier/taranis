@@ -38,16 +38,18 @@ bool RedisService::connect(std::string redis_host, size_t redis_port,
     return cli->is_connected();
 }
 
-bool RedisService::saveIndex(std::string db_name, std::string index_name, Index* index) {
-
+bool RedisService::saveIndex(std::string db_name, std::string index_name, Index *index) {
+    std::cout << "Saving index" << std::endl;
     auto writer = new RedisIndexIOWriter(cli, db_name, index_name);
     write_index(index, writer);
     writer->close();
+    std::cout << "Index is saved" << std::endl;
     return true;
 }
 
-Index* RedisService::loadIndex(std::string db_name, std::string index_name) {
+Index *RedisService::loadIndex(std::string db_name, std::string index_name) {
 
+    std::cout << "Loading index" << std::endl;
     std::string key = fmt::format("db/{}/idx/{}/index", db_name, index_name);
     std::future<cpp_redis::reply> reply = this->cli->get(key);
 
@@ -59,8 +61,62 @@ Index* RedisService::loadIndex(std::string db_name, std::string index_name) {
     auto reader = new VectorIOReader();
     reader->data = data;
 
-    Index* index = read_index(reader);
+    Index *index = read_index(reader);
     index->display();
+    std::cout << "Index is loaded" << std::endl;
 
     return index;
+}
+
+
+void RedisService::addVectors(std::string db_name, std::string index_name, const int64_t *ids,
+                              std::vector<faiss::Index::idx_t> list_ids,
+                              uint8_t *encoded_vectors, size_t code_size) {
+
+    for (int i = 0; i < list_ids.size(); i++) {
+        faiss::Index::idx_t list_id = list_ids[i];
+
+        this->appendId(db_name, index_name, list_id, ids[i]);
+        this->appendCode(db_name, index_name, list_id, encoded_vectors + i * code_size, code_size);
+        this->incrListSize(db_name, index_name, list_id);
+    }
+    this->cli->sync_commit();
+}
+
+void RedisService::appendId(std::string db_name, std::string index_name, faiss::Index::idx_t list_id, int64_t id) {
+
+    std::string key = fmt::format("db/{}/idx/{}/il/{}/ids", db_name, index_name, list_id);
+    std::string sid = std::string((const char *) &(id), sizeof(int64_t));
+    this->cli->append(key, sid, [](cpp_redis::reply &reply) {});
+}
+
+void RedisService::appendCode(std::string db_name, std::string index_name, faiss::Index::idx_t list_id, uint8_t *code,
+                              size_t code_size) {
+
+    std::string scode = std::string((const char *) code, code_size);
+    std::string key = fmt::format("db/{}/idx/{}/il/{}/codes", db_name, index_name, list_id);
+    this->cli->append(key, scode, [](cpp_redis::reply &reply) {});
+}
+
+void RedisService::incrListSize(std::string db_name, std::string index_name, faiss::Index::idx_t list_id) {
+    std::string key = fmt::format("db/{}/idx/{}/il/{}/size", db_name, index_name, list_id);
+    this->cli->incr(key);
+}
+
+void RedisService::deleteIndex(const std::string& db_name, const std::string& index_name) {
+
+    std::string pattern = fmt::format("db/{}/idx/{}/*", db_name, index_name);
+    std::future<cpp_redis::reply> reply = this->cli->keys(pattern);
+    this->cli->sync_commit();
+    std::vector<cpp_redis::reply> replies = reply.get().as_array();
+
+    std::vector<std::string> keys = std::vector<std::string>();
+    for (auto & r : replies) {
+        const std::string& key = r.as_string();
+        std::cout << "Removing key " << key << std::endl;
+        keys.push_back(key);
+    }
+    this->cli->del(keys, [](cpp_redis::reply &reply) {});
+    this->cli->sync_commit();
+
 }

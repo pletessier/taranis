@@ -44,6 +44,8 @@ PYBIND11_MODULE(cpp_taranis, m) {
     py::class_<FaissWrapper> (m, "FaissWrapper", py::module_local())
             .def(py::init<std::string, size_t, std::uint32_t, std::int32_t, std::uint32_t>())
             .def("create_index", &FaissWrapper::create_index)
+            .def("delete_index", &FaissWrapper::delete_index)
             .def("get_index", &FaissWrapper::get_index)
-            .def("train_model", &FaissWrapper::train_model);
+            .def("train_model", &FaissWrapper::train_model)
+            .def("encode_vectors", &FaissWrapper::encode_vectors);
 }

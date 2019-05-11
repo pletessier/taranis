@@ -46,7 +46,7 @@ class IndexModelResource(Resource):
         abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @ns_db.doc('post_index_model')
-    @api.marshal_with(IndexModelApiModel, code=HTTPStatus.OK)
+    @ns_db.response(HTTPStatus.OK, 'Index has been trained')
     @ns_db.response(404, 'IndexModel not found')
     @ns_db.response(500, 'Internal server error')
     def post(self, db_name, index_name):
