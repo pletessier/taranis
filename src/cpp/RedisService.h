@@ -44,6 +44,12 @@ public:
 
     void deleteIndex(const std::string& db_name, const std::string& index_name);
 
+    int64_t getListSize(std::string db_name, std::string index_name, faiss::Index::idx_t list_id);
+
+    const uint8_t * getCodes(std::string db_name, std::string index_name, size_t list_no);
+
+    const int64_t * getIds(std::string db_name, std::string index_name, size_t list_id);
+
 private:
     cpp_redis::client *cli;
 };

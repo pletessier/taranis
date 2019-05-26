@@ -2,12 +2,15 @@ import ctypes
 import struct
 from datetime import datetime
 
+import numpy as np
 from bson import Binary
+from flask_restplus._http import HTTPStatus
 from pymongo.errors import DuplicateKeyError
 from werkzeug.exceptions import Conflict, NotFound, InternalServerError
 
 from api.model.DatabaseModel import DatabaseModel
 from api.model.IndexModel import IndexModel
+from api.model.VectorApiModel import VectorDataModel
 from repository.mongo_db_repository import MongoDBDatabaseRepository
 import cpp_taranis
 
@@ -60,6 +63,10 @@ class TaranisService(object):
         res = self.repo.delete_vectors_by_database_name(db_name)
         if not res:
             raise InternalServerError("Error while deleting vectors associated with database {}".format(db_name))
+
+    def get_vectors(self, db_name, ids):
+        res = self.repo.get_vectors(db_name, ids)
+        return dict(vectors=res)
 
     def put_vectors(self, db_name, vectors, index=None):
         for v in vectors:
@@ -116,7 +123,6 @@ class TaranisService(object):
         self.faiss_wrapper.train_model(db_name, index_name, count, vectors)
 
     def reindex(self, db_name, index_name):
-
         n_processed = 0
         while True:
             vectors, count, ids = self.repo.find_vectors_by_database_name(db_name, limit=10000, skip=n_processed)
@@ -125,3 +131,22 @@ class TaranisService(object):
             n_processed += count
             print("Found {} vectors to index".format(count))
             self.faiss_wrapper.encode_vectors(db_name, index_name, count, vectors, ids)
+
+    def search(self, db_name, queries, index=None, k: int = 100, n_probe: int = 4):
+        if index is None:
+            raise NotImplementedError("Searching in all indices is not supported yet, please provide an index name")
+
+        query_count = len(queries)
+        dimension = len(queries[0]["data"])
+
+        raw_queries = np.empty((query_count, dimension), dtype=np.dtype('Float32'))
+
+        i = 0
+        for q in queries:
+            # Convert string data to bytes
+            buf = struct.pack('f' * len(q["data"]), *q["data"])
+            raw_queries[i, :] = np.frombuffer(buf, dtype=np.dtype('Float32'))
+            i += 1
+
+        faiss_result = self.faiss_wrapper.search_vectors(db_name, index, raw_queries, k, n_probe)
+        return faiss_result

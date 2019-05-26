@@ -10,6 +10,7 @@
 #include <cstdlib>
 
 #include "FaissWrapper.h"
+#include "SearchResult.h"
 
 namespace py = pybind11;
 using namespace faiss;
@@ -24,7 +25,8 @@ typedef Index::idx_t idx_t;
 
 
 
-class Faiss{};
+class Faiss {
+};
 
 
 PYBIND11_MODULE(cpp_taranis, m) {
@@ -41,11 +43,20 @@ PYBIND11_MODULE(cpp_taranis, m) {
 
 //    py::class_<Faiss> redisService(m, "RedisService");
 
-    py::class_<FaissWrapper> (m, "FaissWrapper", py::module_local())
+    py::class_<SearchResult>(m, "SearchResult", py::module_local())
+            .def_property("knns", &SearchResult::getKnns, &SearchResult::setKnns, py::return_value_policy::copy)
+            .def_property("dists", &SearchResult::getDists, &SearchResult::setDists, py::return_value_policy::copy);
+
+//    py::class_<Pipeau>(m, "Pipeau", py::module_local())
+//            .def_property("a", &Pipeau::getA, &Pipeau::setA,
+//                          py::return_value_policy::copy);
+
+    py::class_<FaissWrapper>(m, "FaissWrapper", py::module_local())
             .def(py::init<std::string, size_t, std::uint32_t, std::int32_t, std::uint32_t>())
             .def("create_index", &FaissWrapper::create_index)
             .def("delete_index", &FaissWrapper::delete_index)
             .def("get_index", &FaissWrapper::get_index)
             .def("train_model", &FaissWrapper::train_model)
-            .def("encode_vectors", &FaissWrapper::encode_vectors);
+            .def("encode_vectors", &FaissWrapper::encode_vectors)
+            .def("search_vectors", &FaissWrapper::search_vectors, pybind11::return_value_policy::copy);
 }

@@ -118,5 +118,30 @@ void RedisService::deleteIndex(const std::string& db_name, const std::string& in
     }
     this->cli->del(keys, [](cpp_redis::reply &reply) {});
     this->cli->sync_commit();
+}
 
+int64_t RedisService::getListSize(std::string db_name, std::string index_name, faiss::Index::idx_t list_id) {
+
+    std::string key = fmt::format("db/{}/idx/{}/il/{}/size", db_name, index_name, list_id);
+    std::future<cpp_redis::reply> reply = this->cli->get(key);
+    this->cli->sync_commit();
+    return stol(reply.get().as_string());
+}
+
+const uint8_t * RedisService::getCodes(std::string db_name, std::string index_name, size_t list_id) {
+
+    std::string key = fmt::format("db/{}/idx/{}/il/{}/codes", db_name, index_name, list_id);
+    std::future<cpp_redis::reply> reply = this->cli->get(key);
+    this->cli->sync_commit();
+    const uint8_t *codes = reinterpret_cast<const uint8_t *>(reply.get().as_string().c_str());
+    return codes;
+}
+
+const int64_t * RedisService::getIds(std::string db_name, std::string index_name, size_t list_id) {
+
+    std::string key = fmt::format("db/{}/idx/{}/il/{}/ids", db_name, index_name, list_id);
+    std::future<cpp_redis::reply> reply = this->cli->get(key);
+    this->cli->sync_commit();
+    const int64_t *ids = reinterpret_cast<const int64_t *>(reply.get().as_string().c_str());
+    return ids;
 }

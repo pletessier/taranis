@@ -14,6 +14,7 @@
 #include <faiss/IVFlib.h>
 #include <faiss/VectorTransform.h>
 #include "RedisService.h"
+#include "SearchResult.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -37,6 +38,8 @@ public:
     bool train_model(std::string db_name, std::string index_name, int count, py::array_t<float> vectors);
 
     bool encode_vectors(std::string db_name, std::string index_name, int count, py::array_t<float> vectors, py::array_t<int64_t> ids);
+
+    int search_vectors(std::string db_name, std::string index_name, py::array_t<float> raw_queries, int k, int n_probe);
 
 private:
     RedisService *data_service;

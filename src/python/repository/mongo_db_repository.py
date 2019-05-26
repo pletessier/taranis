@@ -1,4 +1,5 @@
 import json
+import struct
 
 import numpy as np
 import pymongo
@@ -6,6 +7,7 @@ from pymongo import MongoClient
 from pymongo.results import DeleteResult
 
 from api.model.IndexModel import IndexModel
+from api.model.VectorApiModel import VectorListModel
 from repository.db_repository import AbstractDatabaseRepository
 
 
@@ -84,3 +86,15 @@ class MongoDBDatabaseRepository(AbstractDatabaseRepository):
             ids[i] = v["id"]
             i += 1
         return vectors, count, ids
+
+    def get_vectors(self, db_name: str, ids: [], limit=100000, skip=0) -> list:
+
+        vectors = []
+
+        cursor = self.vector_collection.find(dict(db=db_name, id={"$in": ids})).skip(skip).limit(limit)
+        for v in cursor:
+            new_data = list(struct.unpack('f' * int(len(v["data"]) / 4), v['data']))
+            new_vector = dict(id=v['id'], data=new_data, metadata=v['metadata'])
+            vectors.append(new_vector)
+
+        return vectors
