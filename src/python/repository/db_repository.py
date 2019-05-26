@@ -37,6 +37,10 @@ class AbstractDatabaseRepository(ABC):
         pass
 
     @abstractmethod
+    def get_vectors(self, db_name: str, ids: []) -> list:
+        pass
+
+    @abstractmethod
     def create_one_index(self, index: IndexModel) -> str:
         pass
 

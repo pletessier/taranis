@@ -6,8 +6,8 @@ import logging
 from flask import request
 from flask_restplus import Resource, abort
 from flask_restplus._http import HTTPStatus
-from werkzeug.datastructures import FileStorage
 
+from api.model.IdListModel import IdListModel
 from api.model.VectorApiModel import VectorModel, VectorListModel
 from service.taranis_service import TaranisService
 from src.python.api.restplus import api, ns_db
@@ -23,13 +23,16 @@ class VectorResource(Resource):
         self.db_service = TaranisService()
 
     @ns_db.doc('get_vectors')
-    @api.marshal_with(VectorModel, code=HTTPStatus.OK)
+    @ns_db.param(name="ids", description="vectors id")
+    @api.marshal_with(VectorListModel, code=HTTPStatus.OK)
     @ns_db.response(404, 'Vector not found')
     @ns_db.response(500, 'Internal server error')
-    @ns_db.param(name="index", description="Name of the index")
     def get(self, db_name):
         """Get a list of vectors"""
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        ids_str = request.args.get('ids', type=str)
+        ids = ids_str.split("|")
+        vectors = self.db_service.get_vectors(db_name, ids)
+        return vectors
 
     @ns_db.doc('put_vectors')
     @api.expect(VectorListModel)
