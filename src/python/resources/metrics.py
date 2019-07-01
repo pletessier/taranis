@@ -4,10 +4,10 @@
 import logging
 
 from flask import Response
+import prometheus_client
 from flask_restplus import Resource
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
-from src.python.api.restplus import api
+from src.python.resources.restplus import api
 
 logger = logging.getLogger(__name__)
 ns = api.namespace('metrics', description='metrics resource')
@@ -24,4 +24,4 @@ class MetricsResource(Resource):
         super().__init__(api, *args, **kwargs)
 
     def get(self):
-        return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+        return Response(prometheus_client.generate_latest(), mimetype=prometheus_client.CONTENT_TYPE_LATEST)

@@ -50,9 +50,15 @@ int FaissWrapper::delete_index(std::string db_name, std::string index_name) {
     return 1;
 }
 
-bool FaissWrapper::get_index(std::string db_name, std::string index_name) {
+int FaissWrapper::clear_index(std::string db_name, std::string index_name) {
+    std::cout << "Clear Index " << index_name << std::endl;
+    this->data_service->clearIndex(db_name, index_name);
+    return 1;
+}
+
+Index* FaissWrapper::get_index(std::string db_name, std::string index_name) {
     Index *index = this->data_service->loadIndex(db_name, index_name);
-    return index != NULL;
+    return index;
 }
 
 bool FaissWrapper::train_model(std::string db_name, std::string index_name, int count, py::array_t<float> vectors) {
@@ -81,7 +87,7 @@ bool FaissWrapper::encode_vectors(std::string db_name, std::string index_name, i
 }
 
 
-int
+SearchResult*
 FaissWrapper::search_vectors(std::string db_name, std::string index_name, py::array_t<float> raw_queries, int k,
                              int n_probe) {
 
@@ -105,12 +111,14 @@ FaissWrapper::search_vectors(std::string db_name, std::string index_name, py::ar
     index_ivf->quantizer->search(nq, xqt, n_probe, q_dis.data(), q_lists.data());
 
     // object that does the scanning and distance computations.
-    std::unique_ptr<InvertedListScanner> scanner(index_ivf->get_InvertedListScanner());
+//    std::unique_ptr<InvertedListScanner> scanner(index_ivf->get_InvertedListScanner());
+    InvertedListScanner* scanner = index_ivf->get_InvertedListScanner();
 
     float default_dis = index->metric_type == METRIC_L2 ? HUGE_VAL : -HUGE_VAL;
     int dt = index->d;
 
 //    auto sr = std::unique_ptr<SearchResult>(new SearchResult());
+    SearchResult* sr = new SearchResult();
 
     for (int i = 0; i < nq; i++) {
         std::vector<Index::idx_t> *I = new std::vector<Index::idx_t>(k, -1);
@@ -125,10 +133,13 @@ FaissWrapper::search_vectors(std::string db_name, std::string index_name, py::ar
             scanner->set_list(list_no, q_dis[i * n_probe + j]);
 
             int64_t list_size = this->data_service->getListSize(db_name, index_name, list_no);
-            const uint8_t *codes = this->data_service->getCodes(db_name, index_name, list_no);
-            const int64_t *ids = this->data_service->getIds(db_name, index_name, list_no);
+            const uint8_t *codes = this->data_service->getCodes(db_name, index_name, list_no, list_size, index_ivf->code_size);
+            const int64_t *ids = this->data_service->getIds(db_name, index_name, list_no, list_size);
 
             scanner->scan_codes(list_size, codes, ids, D->data(), I->data(), k);
+
+            delete[] codes;
+            delete[] ids;
         }
 
         // re-order heap
@@ -138,13 +149,18 @@ FaissWrapper::search_vectors(std::string db_name, std::string index_name, py::ar
             minheap_reorder(k, D->data(), I->data());
         }
 
-        std::cout << "Query " << i << ": id=" << i << ", K1=" << I->operator[](0) << std::endl;
+//        std::cout << "Query " << i << ": id=" << i << ", K1=" << I->operator[](0) << std::endl;
 
-//        sr->getKnns()->push_back(I);
-//        sr->getDists()->push_back(D);
+        sr->getKnns()->push_back(I);
+        sr->getDists()->push_back(D);
     }
+
+    delete index;
+
+
+//    std::cout << "will return" << std::endl;
 
 //    std::cout << "There are  " << sr->getKnns()->size() << " results" << std::endl;
 
-    return 4;
+    return sr;
 }

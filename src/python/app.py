@@ -4,15 +4,14 @@ import sys
 from dynaconf import settings
 from flask import Flask, Blueprint
 
-# noinspection PyUnresolvedReferences
-from src.python.api.resource.db import *
-from src.python.api.resource.health import ns as health_resource
-from src.python.api.resource.metrics import ns as metrics_resource
-from src.python.api.restplus import api, ns_db
+from resources.grpc_server import GRPCServer
+from src.python.resources.health import ns as health_resource
+from src.python.resources.metrics import ns as metrics_resource
+from src.python.resources.restplus import api
 
 app = Flask(__name__)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("Taranis")
 
 
 def configure_app(flask_app):
@@ -32,19 +31,20 @@ def initialize_app(flask_app):
     configure_app(flask_app)
     blueprint = Blueprint('api', __name__, url_prefix='/api')
     api.init_app(blueprint)
-    api.add_namespace(ns_db)
     api.add_namespace(health_resource)
     api.add_namespace(metrics_resource)
     flask_app.register_blueprint(blueprint)
 
 
 def main():
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
     initialize_app(app)
-    logger.info('>>>>> Starting %s server at http://%s:%d/api/ <<<<<', settings.APP, settings.HOST, settings.PORT)
+    logger.info('Starting %s API at http://%s:%d/api/', settings.APP, settings.HOST, settings.PORT)
+
+    GRPCServer().start()
     app.run(host=settings.HOST, port=settings.PORT, debug=settings.DEBUG)
 
 
 if __name__ == "__main__":
-
-    # print (sys.path)
     main()

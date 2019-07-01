@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+//import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "io.taranis";
+option java_outer_classname = "TaranisProto";
+option objc_class_prefix = "TRNS";
+
+package taranis;
+
+service Taranis {
+
+  rpc getDatabase (DatabaseNameModel) returns (DatabaseModel) {}
+  rpc createDatabase (NewDatabaseModel) returns (DatabaseModel) {}
+  rpc deleteDatabase (DatabaseNameModel) returns (Empty) {}
+
+  rpc getIndex (IndexQueryModel) returns (IndexModel) {}
+  rpc deleteIndex (IndexQueryModel) returns (Empty) {}
+  rpc createIndex (NewIndexModel) returns (IndexModel) {}
+  rpc trainIndex (IndexQueryModel) returns (Empty) {}
+  rpc reindex (IndexQueryModel) returns (Empty) {}
+
+  rpc addVectors (NewVectorsModel) returns (Empty) {}
+  rpc getVectors (VectorsQueryModel) returns (VectorsReplyModel) {}
+
+  rpc searchVectors (SearchRequestModel) returns (SearchResultListModel) {}
+}
+
+message Empty {}
+
+message NewDatabaseModel {
+  string name = 1;
+}
+message DatabaseNameModel {
+  string name = 1;
+}
+
+message DatabaseModel {
+  string name = 1;
+  int64 created_at = 2;
+  int64 last_trained_at = 3;
+  int64 updated_at = 4;
+  int64 size = 5;
+}
+
+message IndexQueryModel {
+  string db_name = 1;
+  string index_name = 2;
+}
+
+message NewIndexModel {
+  string db_name = 1;
+  string index_name = 2;
+  string config = 3;
+}
+
+message IndexModel {
+  string db_name = 1;
+  string index_name = 2;
+  string config = 3;
+  int64 created_at = 4;
+  int64 last_trained_at = 5;
+  int64 updated_at = 6;
+  enum State {
+    CREATED = 0;
+    TRAINED = 1;
+  }
+  State state = 7;
+}
+
+message VectorModel {
+  int64 id = 1;
+  bytes data = 2;
+  string metadata = 3;
+}
+
+message NewVectorsModel {
+  string db_name = 1;
+  string index_name = 2;
+  repeated VectorModel vectors = 3;
+}
+
+message VectorsQueryModel {
+  string db_name = 1;
+  repeated int64 ids = 2;
+}
+
+message VectorsReplyModel {
+  repeated VectorModel vectors = 2;
+}
+
+message SearchRequestModel {
+  string db_name = 1;
+  string index_name = 2;
+  repeated bytes vectors = 3;
+  int32 k = 4;
+  int32 n_probe = 5;
+}
+
+message SearchResultModel {
+  repeated float dists = 1;
+  repeated int64 knn = 2;
+}
+
+message SearchResultListModel {
+  repeated SearchResultModel results = 1;
+}
+
+message VectorsRequest {
+  string name = 1;
+  bytes data = 2;
+  int32 count = 3;
+  int32 dimension = 4;
+}
+
+message SearchResultsReply {
+  string message = 1;
+  bytes data = 2;
+  int32 dimension = 3;
+  int32 count = 4;
+
+}

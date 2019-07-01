@@ -33,17 +33,18 @@ public:
 
     int delete_index(std::string db_name, std::string index_name);
 
-    bool get_index(std::string db_name, std::string index_name);
+    int clear_index(string db_name, string index_name);
+
+    Index* get_index(std::string db_name, std::string index_name);
 
     bool train_model(std::string db_name, std::string index_name, int count, py::array_t<float> vectors);
 
     bool encode_vectors(std::string db_name, std::string index_name, int count, py::array_t<float> vectors, py::array_t<int64_t> ids);
 
-    int search_vectors(std::string db_name, std::string index_name, py::array_t<float> raw_queries, int k, int n_probe);
-
+    SearchResult* search_vectors(std::string db_name, std::string index_name, py::array_t<float> raw_queries, int k, int n_probe);
 private:
-    RedisService *data_service;
 
+    RedisService *data_service;
 };
 
 

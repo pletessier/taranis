@@ -5,7 +5,7 @@ import logging
 
 from flask_restplus import Resource
 
-from src.python.api.restplus import api
+from src.python.resources.restplus import api
 
 logger = logging.getLogger(__name__)
 ns = api.namespace('health', description='health resource')

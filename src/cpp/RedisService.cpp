@@ -51,11 +51,17 @@ Index *RedisService::loadIndex(std::string db_name, std::string index_name) {
 
     std::cout << "Loading index" << std::endl;
     std::string key = fmt::format("db/{}/idx/{}/index", db_name, index_name);
-    std::future<cpp_redis::reply> reply = this->cli->get(key);
+    std::future<cpp_redis::reply> future_reply = this->cli->get(key);
 
     this->cli->sync_commit();
 
-    std::string string_reply = reply.get().as_string();
+    cpp_redis::reply reply = future_reply.get();
+
+    if( ! reply.is_string()){
+        return nullptr;
+    }
+
+    std::string string_reply = reply.as_string();
     const std::vector<uint8_t> data(string_reply.begin(), string_reply.end());
 
     auto reader = new VectorIOReader();
@@ -64,6 +70,8 @@ Index *RedisService::loadIndex(std::string db_name, std::string index_name) {
     Index *index = read_index(reader);
     index->display();
     std::cout << "Index is loaded" << std::endl;
+
+    delete reader;
 
     return index;
 }
@@ -103,9 +111,8 @@ void RedisService::incrListSize(std::string db_name, std::string index_name, fai
     this->cli->incr(key);
 }
 
-void RedisService::deleteIndex(const std::string& db_name, const std::string& index_name) {
+void RedisService::deleteFromPattern(const std::string& pattern) {
 
-    std::string pattern = fmt::format("db/{}/idx/{}/*", db_name, index_name);
     std::future<cpp_redis::reply> reply = this->cli->keys(pattern);
     this->cli->sync_commit();
     std::vector<cpp_redis::reply> replies = reply.get().as_array();
@@ -120,6 +127,22 @@ void RedisService::deleteIndex(const std::string& db_name, const std::string& in
     this->cli->sync_commit();
 }
 
+void RedisService::deleteInvertedLists(const std::string& db_name, const std::string& index_name) {
+
+    std::string pattern = fmt::format("db/{}/idx/{}/il/*", db_name, index_name);
+    deleteFromPattern(pattern);
+}
+
+void RedisService::deleteIndex(const std::string& db_name, const std::string& index_name) {
+
+    std::string pattern = fmt::format("db/{}/idx/{}/*", db_name, index_name);
+    deleteFromPattern(pattern);
+}
+
+void RedisService::clearIndex(string dbName, string indexName) {
+    deleteInvertedLists(dbName, indexName);
+}
+
 int64_t RedisService::getListSize(std::string db_name, std::string index_name, faiss::Index::idx_t list_id) {
 
     std::string key = fmt::format("db/{}/idx/{}/il/{}/size", db_name, index_name, list_id);
@@ -128,20 +151,29 @@ int64_t RedisService::getListSize(std::string db_name, std::string index_name, f
     return stol(reply.get().as_string());
 }
 
-const uint8_t * RedisService::getCodes(std::string db_name, std::string index_name, size_t list_id) {
+const uint8_t * RedisService::getCodes(std::string db_name, std::string index_name, size_t list_id, int64_t list_size, int code_size) {
 
     std::string key = fmt::format("db/{}/idx/{}/il/{}/codes", db_name, index_name, list_id);
     std::future<cpp_redis::reply> reply = this->cli->get(key);
     this->cli->sync_commit();
-    const uint8_t *codes = reinterpret_cast<const uint8_t *>(reply.get().as_string().c_str());
+
+//    const uint8_t *codes = reinterpret_cast<const uint8_t *>(reply.get().as_string().c_str());
+    uint8_t * codes = new uint8_t[list_size*code_size];
+    memcpy (codes, reply.get().as_string().c_str(), list_size * code_size * sizeof (uint8_t)) ;
     return codes;
 }
 
-const int64_t * RedisService::getIds(std::string db_name, std::string index_name, size_t list_id) {
+const int64_t * RedisService::getIds(std::string db_name, std::string index_name, size_t list_id, int64_t list_size) {
 
     std::string key = fmt::format("db/{}/idx/{}/il/{}/ids", db_name, index_name, list_id);
     std::future<cpp_redis::reply> reply = this->cli->get(key);
     this->cli->sync_commit();
-    const int64_t *ids = reinterpret_cast<const int64_t *>(reply.get().as_string().c_str());
+
+//    const int64_t *ids = reinterpret_cast<const int64_t *>(reply.get().as_string().c_str());
+    int64_t * ids = new int64_t[list_size];
+    memcpy (ids, reply.get().as_string().c_str(), list_size * sizeof (int64_t)) ;
+
     return ids;
 }
+
+

@@ -19,6 +19,7 @@ class SearchResult {
 
 public:
     SearchResult();
+    ~SearchResult();
 
     vector<vector<int64_t> *> *getKnns() const;
 

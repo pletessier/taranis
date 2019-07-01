@@ -42,16 +42,24 @@ public:
 
     void incrListSize(std::string db_name, std::string index_name, faiss::Index::idx_t list_id);
 
+    void deleteInvertedLists(const std::string &db_name, const std::string &index_name);
+
     void deleteIndex(const std::string& db_name, const std::string& index_name);
 
     int64_t getListSize(std::string db_name, std::string index_name, faiss::Index::idx_t list_id);
 
-    const uint8_t * getCodes(std::string db_name, std::string index_name, size_t list_no);
+    const uint8_t * getCodes(std::string db_name, std::string index_name, size_t list_no, int64_t list_size, int code_size);
 
-    const int64_t * getIds(std::string db_name, std::string index_name, size_t list_id);
+    const int64_t * getIds(std::string db_name, std::string index_name, size_t list_id, int64_t list_size);
+
+    void clearIndex(std::string dbName, std::string indexName);
 
 private:
     cpp_redis::client *cli;
+
+
+
+    void deleteFromPattern(const std::string &pattern);
 };
 
 

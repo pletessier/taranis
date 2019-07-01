@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from api.model.DatabaseModel import DatabaseModel
-from api.model.IndexModel import IndexModel
+# from api.model.DatabaseModel import DatabaseModel
+# from api.model.IndexModel import IndexModel
 
 
 class AbstractDatabaseRepository(ABC):
@@ -17,7 +17,7 @@ class AbstractDatabaseRepository(ABC):
         pass
 
     @abstractmethod
-    def create_one_database(self, database: DatabaseModel) -> str:
+    def create_one_database(self, database) -> str:
         pass
 
     @abstractmethod
@@ -41,9 +41,9 @@ class AbstractDatabaseRepository(ABC):
         pass
 
     @abstractmethod
-    def create_one_index(self, index: IndexModel) -> str:
+    def create_one_index(self, index) -> str:
         pass
 
     @abstractmethod
-    def delete_one_index(self, index: IndexModel) -> bool:
+    def delete_one_index(self, index) -> bool:
         pass
