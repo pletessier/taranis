@@ -3,14 +3,15 @@
 
 import logging
 
-from dynaconf import settings
 from flask_restplus import Api
+
+from utils.configuration import configuration as config
 
 log = logging.getLogger(__name__)
 
-api = Api(version=settings.SWAGGER.version,
-          title=settings.SWAGGER.title,
-          description=settings.SWAGGER.description)
+api = Api(version=config.get("swagger.version"),
+          title=config.get("swagger.title"),
+          description=config.get("swagger.description"))
 
 ns_db = api.namespace('db', description='Everything about databases')
 

@@ -1,0 +1,34 @@
+app: Taranis
+http:
+  host: 0.0.0.0
+  port: 8000
+  debug: false
+  url_prefix: "/api"
+grpc:
+  host: "[::]"
+  port: 50051
+  max_workers: 1
+restplus:
+  validate: true
+  maskSwagger: false
+  error404Help: false
+swagger:
+  docExpansion: list
+  title:  Taranis
+  description: Taranis
+  version: v0.1.0
+db:
+  mongo:
+    host: localhost
+    port: 27017
+    username: root
+    password: password
+  redis:
+    host: localhost
+    port: 6379
+    timeout_msecs: 3000
+    max_reconnects: 10
+    reconnect_interval_msecs: 1000
+logs:
+  level: INFO
+  stream: "sys.stdout"

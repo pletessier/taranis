@@ -12,7 +12,7 @@ import cpp_taranis
 # from api.model import IndexModel
 import numpy as np
 from google.protobuf.internal.well_known_types import Timestamp
-from memory_profiler import profile
+from google.protobuf.json_format import ParseDict, MessageToDict
 from pymongo.errors import DuplicateKeyError
 
 from errors.TaranisError import TaranisError, TaranisNotFoundError, TaranisNotImplementedError, \
@@ -20,8 +20,6 @@ from errors.TaranisError import TaranisError, TaranisNotFoundError, TaranisNotIm
 from repositories.mongo_db_repository import MongoDBDatabaseRepository
 from taranis_pb2 import NewDatabaseModel, DatabaseModel, Empty, IndexModel, NewIndexModel, VectorsReplyModel, \
     SearchResultListModel, SearchResultModel
-from google.protobuf.json_format import ParseDict, MessageToDict
-
 from utils.singleton import Singleton
 
 
@@ -33,22 +31,17 @@ class TaranisService(metaclass=Singleton):
     #         cls.instance = object.__new__(cls, *args, **kargs)
     #     return cls.instance
 
-    def __init__(self):
+    def __init__(self, mongo_host=None, mongo_port=None, mongo_username=None, mongo_password=None,
+                 redis_host="localhost", redis_port=6379, redis_timeout_msecs=3000,
+                 redis_max_reconnects=10, redis_reconnect_interval_msecs=1000):
 
         logging.info("__init__ TaranisService")
 
+        self.repo = MongoDBDatabaseRepository(host=mongo_host, port=mongo_port, username=mongo_username,
+                                              password=mongo_password)
 
-        # TODO Set Database type and params from config
-        self.repo = MongoDBDatabaseRepository()
-
-        redis_host = "localhost"
-        redis_port = 6379
-        timeout_msecs = 3000
-        max_reconnects = 10
-        reconnect_interval_msecs = 1000
-
-        self.faiss_wrapper = cpp_taranis.FaissWrapper(redis_host, redis_port, timeout_msecs, max_reconnects,
-                                                      reconnect_interval_msecs)
+        self.faiss_wrapper = cpp_taranis.FaissWrapper(redis_host, redis_port, redis_timeout_msecs, redis_max_reconnects,
+                                                      redis_reconnect_interval_msecs)
 
     # def list_database(self):
     #     return self.repo.get_all_databases()
@@ -185,7 +178,6 @@ class TaranisService(metaclass=Singleton):
             self.faiss_wrapper.encode_vectors(db_name, index_name, count, vectors, ids)
         return Empty()
 
-    @profile
     def search(self, db_name, queries, index_name=None, k: int = 100, n_probe: int = 4):
         if index_name is None:
             raise TaranisNotImplementedError(

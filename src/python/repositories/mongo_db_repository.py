@@ -1,25 +1,19 @@
-import json
-import struct
-
 import numpy as np
 import pymongo
-from memory_profiler import profile
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 from pymongo.results import DeleteResult
 
-# from api.model.IndexModel import IndexModel
-# from api.model.VectorApiModel import VectorListModel
 from errors.TaranisError import TaranisAlreadyExistsError
 from repositories.db_repository import AbstractDatabaseRepository
 
 
 class MongoDBDatabaseRepository(AbstractDatabaseRepository):
 
-    def __init__(self):
-        self.mongo_client = MongoClient('localhost', 27017,
-                                        username='root',
-                                        password='password')
+    def __init__(self, host='localhost', port=27017, username='root', password='password'):
+        self.mongo_client = MongoClient(host, port,
+                                        username=username,
+                                        password=password)
         self.db_mongo = self.mongo_client['taranis']
 
         self.databases_collection = self.db_mongo["databases"]
@@ -78,7 +72,6 @@ class MongoDBDatabaseRepository(AbstractDatabaseRepository):
     def find_one_index_by_index_name_and_db_name(self, index_name: str, db_name: str) -> object:
         return self.indices_collection.find_one(dict(index_name=index_name, db_name=db_name))
 
-    @profile
     def find_vectors_by_database_name(self, name: str, limit=100000, skip=0) -> (np.ndarray, int):
         cursor = self.vector_collection.find(dict(db_name=name)).skip(skip).limit(limit)
         dimension = 128
