@@ -42,7 +42,7 @@ def main():
     logging.basicConfig(stream=eval(config.logs.stream), level=eval("logging.{}".format(config.logs.level)))
 
     initialize_app(app)
-    logger.info('Starting %s API at http://%s:%d/api/', config.app, config.http.HOST, config.http.PORT)
+    logger.info('Starting %s API at http://%s:%d/api/', config.app, config.http.host, config.http.port)
 
     taranis_service = TaranisService(mongo_host=config.db.mongo.host, mongo_port=config.db.mongo.port,
                                      mongo_username=config.db.mongo.username,

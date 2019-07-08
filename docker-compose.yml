@@ -37,3 +37,13 @@ services:
       - REDIS_HOSTS=local:redis:6379
     ports:
       - "8081:8081"
+
+  taranis:
+    image: pletessier/taranis:latest
+    command: "--config-file /opt/taranis/config.yaml"
+    ports:
+      - 8000:8000
+      - 50051:50051
+    environment:
+      TARANIS__db__mongo__host: mongo
+      TARANIS__db__redis__host: redis
