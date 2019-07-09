@@ -22,10 +22,10 @@
 using namespace faiss;
 
 
-RedisService::RedisService() {}
+RedisService::RedisService() = default;
 
 
-bool RedisService::connect(std::string redis_host, size_t redis_port,
+bool RedisService::connect(const std::string& redis_host, size_t redis_port,
                            std::uint32_t timeout_msecs,
                            std::int32_t max_reconnects,
                            std::uint32_t reconnect_interval_msecs) {
@@ -38,7 +38,7 @@ bool RedisService::connect(std::string redis_host, size_t redis_port,
     return cli->is_connected();
 }
 
-bool RedisService::saveIndex(std::string db_name, std::string index_name, Index *index) {
+bool RedisService::saveIndex(const std::string& db_name, const std::string& index_name, Index *index) {
     std::cout << "Saving index" << std::endl;
     auto writer = new RedisIndexIOWriter(cli, db_name, index_name);
     write_index(index, writer);
@@ -47,7 +47,7 @@ bool RedisService::saveIndex(std::string db_name, std::string index_name, Index 
     return true;
 }
 
-Index *RedisService::loadIndex(std::string db_name, std::string index_name) {
+Index *RedisService::loadIndex(const std::string& db_name, const std::string& index_name) {
 
     std::cout << "Loading index" << std::endl;
     std::string key = fmt::format("db/{}/idx/{}/index", db_name, index_name);
@@ -77,7 +77,7 @@ Index *RedisService::loadIndex(std::string db_name, std::string index_name) {
 }
 
 
-void RedisService::addVectors(std::string db_name, std::string index_name, const int64_t *ids,
+void RedisService::addVectors(const std::string& db_name, const std::string& index_name, const int64_t *ids,
                               std::vector<faiss::Index::idx_t> list_ids,
                               uint8_t *encoded_vectors, size_t code_size) {
 
@@ -91,14 +91,14 @@ void RedisService::addVectors(std::string db_name, std::string index_name, const
     this->cli->sync_commit();
 }
 
-void RedisService::appendId(std::string db_name, std::string index_name, faiss::Index::idx_t list_id, int64_t id) {
+void RedisService::appendId(const std::string& db_name, const std::string& index_name, faiss::Index::idx_t list_id, int64_t id) {
 
     std::string key = fmt::format("db/{}/idx/{}/il/{}/ids", db_name, index_name, list_id);
     std::string sid = std::string((const char *) &(id), sizeof(int64_t));
     this->cli->append(key, sid, [](cpp_redis::reply &reply) {});
 }
 
-void RedisService::appendCode(std::string db_name, std::string index_name, faiss::Index::idx_t list_id, uint8_t *code,
+void RedisService::appendCode(const std::string& db_name, const std::string& index_name, faiss::Index::idx_t list_id, uint8_t *code,
                               size_t code_size) {
 
     std::string scode = std::string((const char *) code, code_size);
@@ -106,7 +106,7 @@ void RedisService::appendCode(std::string db_name, std::string index_name, faiss
     this->cli->append(key, scode, [](cpp_redis::reply &reply) {});
 }
 
-void RedisService::incrListSize(std::string db_name, std::string index_name, faiss::Index::idx_t list_id) {
+void RedisService::incrListSize(const std::string& db_name, const std::string& index_name, faiss::Index::idx_t list_id) {
     std::string key = fmt::format("db/{}/idx/{}/il/{}/size", db_name, index_name, list_id);
     this->cli->incr(key);
 }
@@ -139,11 +139,11 @@ void RedisService::deleteIndex(const std::string& db_name, const std::string& in
     deleteFromPattern(pattern);
 }
 
-void RedisService::clearIndex(string dbName, string indexName) {
+void RedisService::clearIndex(const string& dbName, const string& indexName) {
     deleteInvertedLists(dbName, indexName);
 }
 
-int64_t RedisService::getListSize(std::string db_name, std::string index_name, faiss::Index::idx_t list_id) {
+int64_t RedisService::getListSize(const std::string& db_name, const std::string& index_name, faiss::Index::idx_t list_id) {
 
     std::string key = fmt::format("db/{}/idx/{}/il/{}/size", db_name, index_name, list_id);
     std::future<cpp_redis::reply> reply = this->cli->get(key);
@@ -151,26 +151,26 @@ int64_t RedisService::getListSize(std::string db_name, std::string index_name, f
     return stol(reply.get().as_string());
 }
 
-const uint8_t * RedisService::getCodes(std::string db_name, std::string index_name, size_t list_id, int64_t list_size, int code_size) {
+const uint8_t * RedisService::getCodes(const std::string& db_name, const std::string& index_name, size_t list_id, int64_t list_size, int code_size) {
 
     std::string key = fmt::format("db/{}/idx/{}/il/{}/codes", db_name, index_name, list_id);
     std::future<cpp_redis::reply> reply = this->cli->get(key);
     this->cli->sync_commit();
 
 //    const uint8_t *codes = reinterpret_cast<const uint8_t *>(reply.get().as_string().c_str());
-    uint8_t * codes = new uint8_t[list_size*code_size];
+    auto * codes = new uint8_t[list_size*code_size];
     memcpy (codes, reply.get().as_string().c_str(), list_size * code_size * sizeof (uint8_t)) ;
     return codes;
 }
 
-const int64_t * RedisService::getIds(std::string db_name, std::string index_name, size_t list_id, int64_t list_size) {
+const int64_t * RedisService::getIds(const std::string& db_name, const std::string& index_name, size_t list_id, int64_t list_size) {
 
     std::string key = fmt::format("db/{}/idx/{}/il/{}/ids", db_name, index_name, list_id);
     std::future<cpp_redis::reply> reply = this->cli->get(key);
     this->cli->sync_commit();
 
 //    const int64_t *ids = reinterpret_cast<const int64_t *>(reply.get().as_string().c_str());
-    int64_t * ids = new int64_t[list_size];
+    auto * ids = new int64_t[list_size];
     memcpy (ids, reply.get().as_string().c_str(), list_size * sizeof (int64_t)) ;
 
     return ids;

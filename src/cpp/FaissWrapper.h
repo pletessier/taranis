@@ -25,23 +25,30 @@ namespace py = pybind11;
 class FaissWrapper {
 
 public:
-    FaissWrapper(std::string redis_host, size_t redis_port, std::uint32_t timeout_msecs, std::int32_t max_reconnects,
-                 std::uint32_t reconnect_interval_msecs);
+    FaissWrapper(const string &redis_host, size_t redis_port, uint32_t timeout_msecs,
+                 int32_t max_reconnects, uint32_t reconnect_interval_msecs);
 
-    int create_index(std::string db_name, std::string index_name, int dimension, const char *index_type,
+    int create_index(const std::string &db_name, const std::string &index_name,
+                     int dimension, const char *index_type,
                      faiss::MetricType metric_type, int n_probes);
 
-    int delete_index(std::string db_name, std::string index_name);
+    int delete_index(const std::string &db_name, const std::string &index_name);
 
-    int clear_index(string db_name, string index_name);
+    int clear_index(const std::string &db_name, const std::string &index_name);
 
-    Index* get_index(std::string db_name, std::string index_name);
+    Index *get_index(const std::string &db_name, const std::string &index_name);
 
-    bool train_model(std::string db_name, std::string index_name, int count, py::array_t<float> vectors);
+    bool train_model(const std::string &db_name, const std::string &index_name,
+                     int count, const py::array_t<float> &vectors);
 
-    bool encode_vectors(std::string db_name, std::string index_name, int count, py::array_t<float> vectors, py::array_t<int64_t> ids);
+    bool encode_vectors(const std::string &db_name, const std::string &index_name, std::uint64_t count,
+                        const py::array_t<float> &vectors,
+                        const py::array_t<int64_t> &ids);
 
-    SearchResult* search_vectors(std::string db_name, std::string index_name, py::array_t<float> raw_queries, int k, int n_probe);
+    SearchResult *
+    search_vectors(const std::string &db_name, const std::string &index_name, const py::array_t<float> &raw_queries,
+                   std::uint32_t k, std::uint32_t n_probe);
+
 private:
 
     RedisService *data_service;

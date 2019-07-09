@@ -13,9 +13,9 @@ using namespace faiss;
 class RedisIndexIOWriter : public IOWriter {
 
 public:
-    RedisIndexIOWriter(cpp_redis::client* redis, std::string db_name, std::string index_name);
+    RedisIndexIOWriter(cpp_redis::client* redis, const std::string &db_name, const std::string& index_name);
 
-    ~RedisIndexIOWriter();
+    ~RedisIndexIOWriter() override;
 
     size_t operator()(const void *ptr, size_t size, size_t nitems) override;
 

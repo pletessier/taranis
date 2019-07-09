@@ -1,19 +1,21 @@
 # Copyright (C) 2019 Pierre Letessier
 # This source code is licensed under the BSD 3 license found in the
 # LICENSE file in the root directory of this source tree.
-
+"""
+Health API resource
+"""
 import logging
 
 from flask_restplus import Resource
 
-from src.python.resources.restplus import api
+from resources.restplus import API
 
-logger = logging.getLogger(__name__)
-ns = api.namespace('health', description='health resource')
+LOGGER = logging.getLogger(__name__)
+NS = API.namespace('health', description='health resource')
 
 
-@ns.route('/')
-@ns.response(404, 'health')
+@NS.route('/')
+@NS.response(404, 'health')
 class HealthResource(Resource):
     '''
     In charge to handle health resource
@@ -24,5 +26,6 @@ class HealthResource(Resource):
 
     def get(self):
         return {
-            "status": "UP"
+            "status": "UP",
+            "message": "This feature is not implemented: always return UP..."
         }

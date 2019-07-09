@@ -7,6 +7,7 @@
 #include <cstdlib>
 
 #include <memory>
+#include <utility>
 #include <vector>
 #include <thread>
 
@@ -26,8 +27,8 @@
 using namespace faiss;
 
 
-FaissWrapper::FaissWrapper(std::string redis_host, size_t redis_port, std::uint32_t timeout_msecs,
-                           std::int32_t max_reconnects, std::uint32_t reconnect_interval_msecs) {
+FaissWrapper::FaissWrapper(const std::string &redis_host, const size_t redis_port, const std::uint32_t timeout_msecs,
+                           const std::int32_t max_reconnects, const std::uint32_t reconnect_interval_msecs) {
 
     this->data_service = new RedisService();
     this->data_service->connect(redis_host, redis_port, timeout_msecs, max_reconnects, reconnect_interval_msecs);
@@ -35,8 +36,8 @@ FaissWrapper::FaissWrapper(std::string redis_host, size_t redis_port, std::uint3
 }
 
 
-int FaissWrapper::create_index(std::string db_name, std::string index_name, int dimension, const char *index_type,
-                               MetricType metric_type, int n_probes) {
+int FaissWrapper::create_index(const std::string& db_name, const std::string &index_name, const int dimension,
+                               const char *index_type, const MetricType metric_type, const int n_probes) {
     std::cout << "Creating Index with metric_type " << metric_type << std::endl;
     std::unique_ptr<Index> index = std::unique_ptr<Index>(index_factory(dimension, index_type, metric_type));
     ParameterSpace().set_index_parameter(index.get(), "nprobe", n_probes);
@@ -44,24 +45,25 @@ int FaissWrapper::create_index(std::string db_name, std::string index_name, int 
     return 1;
 }
 
-int FaissWrapper::delete_index(std::string db_name, std::string index_name) {
+int FaissWrapper::delete_index(const std::string &db_name, const std::string &index_name) {
     std::cout << "Delete Index " << index_name << std::endl;
     this->data_service->deleteIndex(db_name, index_name);
     return 1;
 }
 
-int FaissWrapper::clear_index(std::string db_name, std::string index_name) {
+int FaissWrapper::clear_index(const std::string& db_name, const std::string &index_name) {
     std::cout << "Clear Index " << index_name << std::endl;
     this->data_service->clearIndex(db_name, index_name);
     return 1;
 }
 
-Index* FaissWrapper::get_index(std::string db_name, std::string index_name) {
+Index *FaissWrapper::get_index(const std::string &db_name, const std::string &index_name) {
     Index *index = this->data_service->loadIndex(db_name, index_name);
     return index;
 }
 
-bool FaissWrapper::train_model(std::string db_name, std::string index_name, int count, py::array_t<float> vectors) {
+bool FaissWrapper::train_model(const std::string &db_name, const std::string &index_name, const int count,
+                               const py::array_t<float> &vectors) {
 
     Index *index = this->data_service->loadIndex(db_name, index_name);
     std::cout << "Start training" << std::endl;
@@ -71,8 +73,9 @@ bool FaissWrapper::train_model(std::string db_name, std::string index_name, int 
     return true;
 }
 
-bool FaissWrapper::encode_vectors(std::string db_name, std::string index_name, int count, py::array_t<float> vectors,
-                                  py::array_t<int64_t> ids) {
+bool FaissWrapper::encode_vectors(const std::string &db_name, const std::string &index_name, const std::uint64_t count,
+                                  const py::array_t<float> &vectors,
+                                  const py::array_t<int64_t> &ids) {
 
     Index *index = this->data_service->loadIndex(db_name, index_name);
 
@@ -87,12 +90,12 @@ bool FaissWrapper::encode_vectors(std::string db_name, std::string index_name, i
 }
 
 
-SearchResult*
-FaissWrapper::search_vectors(std::string db_name, std::string index_name, py::array_t<float> raw_queries, int k,
-                             int n_probe) {
+SearchResult *FaissWrapper::search_vectors(const std::string &db_name, const std::string &index_name,
+                                           const py::array_t<float> &raw_queries, const std::uint32_t k,
+                                           const std::uint32_t n_probe) {
 
-    size_t nq = raw_queries.shape(0);
-    size_t dimension = raw_queries.shape(1);
+    ssize_t nq = raw_queries.shape(0);
+    ssize_t dimension = raw_queries.shape(1);
 
     std::cout << "Search " << k << " NN in " << db_name << ":" << index_name << " with " << nq
               << " vectors of dimension " << dimension << " and " << n_probe << " probes" << std::endl;
@@ -105,20 +108,20 @@ FaissWrapper::search_vectors(std::string db_name, std::string index_name, py::ar
     IndexIVF *index_ivf = ivflib::extract_index_ivf(index);
     // quantize the queries to get the inverted list ids to visit.
 
-    std::vector<Index::idx_t> q_lists(nq * n_probe);
-    std::vector<float> q_dis(nq * n_probe);
+    std::vector<Index::idx_t> q_lists(static_cast<unsigned long>(nq * n_probe));
+    std::vector<float> q_dis(static_cast<unsigned long>(nq * n_probe));
 
     index_ivf->quantizer->search(nq, xqt, n_probe, q_dis.data(), q_lists.data());
 
     // object that does the scanning and distance computations.
 //    std::unique_ptr<InvertedListScanner> scanner(index_ivf->get_InvertedListScanner());
-    InvertedListScanner* scanner = index_ivf->get_InvertedListScanner();
+    InvertedListScanner *scanner = index_ivf->get_InvertedListScanner();
 
     float default_dis = index->metric_type == METRIC_L2 ? HUGE_VAL : -HUGE_VAL;
     int dt = index->d;
 
 //    auto sr = std::unique_ptr<SearchResult>(new SearchResult());
-    SearchResult* sr = new SearchResult();
+    auto *sr = new SearchResult();
 
     for (int i = 0; i < nq; i++) {
         std::vector<Index::idx_t> *I = new std::vector<Index::idx_t>(k, -1);
@@ -132,8 +135,9 @@ FaissWrapper::search_vectors(std::string db_name, std::string index_name, py::ar
             if (0 > list_no) continue;
             scanner->set_list(list_no, q_dis[i * n_probe + j]);
 
-            int64_t list_size = this->data_service->getListSize(db_name, index_name, list_no);
-            const uint8_t *codes = this->data_service->getCodes(db_name, index_name, list_no, list_size, index_ivf->code_size);
+            size_t list_size = this->data_service->getListSize(db_name, index_name, list_no);
+            const uint8_t *codes = this->data_service->getCodes(db_name, index_name, list_no, list_size,
+                                                                index_ivf->code_size);
             const int64_t *ids = this->data_service->getIds(db_name, index_name, list_no, list_size);
 
             scanner->scan_codes(list_size, codes, ids, D->data(), I->data(), k);

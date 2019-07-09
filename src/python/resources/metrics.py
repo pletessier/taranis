@@ -8,14 +8,14 @@ import prometheus_client
 from flask import Response
 from flask_restplus import Resource
 
-from src.python.resources.restplus import api
+from resources.restplus import API
 
-logger = logging.getLogger(__name__)
-ns = api.namespace('metrics', description='metrics resource')
+LOGGER = logging.getLogger(__name__)
+NS = API.namespace('metrics', description='metrics resource')
 
 
-@ns.route('/')
-@ns.response(404, 'metrics')
+@NS.route('/')
+@NS.response(404, 'metrics')
 class MetricsResource(Resource):
     '''
     In charge to handle metrics resource

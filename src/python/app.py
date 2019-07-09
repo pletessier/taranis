@@ -2,6 +2,9 @@
 # This source code is licensed under the BSD 3 license found in the
 # LICENSE file in the root directory of this source tree.
 
+"""
+Main file
+"""
 import logging
 # noinspection PyUnresolvedReferences
 import sys
@@ -9,19 +12,19 @@ import sys
 from flask import Flask, Blueprint
 
 from resources.grpc_server import GRPCServer
+from resources.health import NS as health_resource
+from resources.metrics import NS as metrics_resource
+from resources.restplus import API
 from services.taranis_service import TaranisService
-from src.python.resources.health import ns as health_resource
-from src.python.resources.metrics import ns as metrics_resource
-from src.python.resources.restplus import api
-from utils.configuration import configuration as config
+from utils.configuration import CONFIGURATION as config
 
-app = Flask(__name__)
+APP = Flask(__name__)
 
-logger = logging.getLogger(config.app)
+LOGGER = logging.getLogger(config.app)
 
 
 def configure_app(flask_app):
-    logger.info('Configure application')
+    LOGGER.info('Configure application')
     flask_app.config['SERVER_HOST'] = config.http.host
     # flask_app.config['SERVER_NAME'] = "{0}:{1}".format(settings.HOST, settings.PORT)
     flask_app.config['SERVER_PORT'] = config.http.port
@@ -33,20 +36,20 @@ def configure_app(flask_app):
 
 
 def initialize_app(flask_app):
-    logger.info('Initialize application')
+    LOGGER.info('Initialize application')
     configure_app(flask_app)
     blueprint = Blueprint('api', __name__, url_prefix=config.http.url_prefix)
-    api.init_app(blueprint)
-    api.add_namespace(health_resource)
-    api.add_namespace(metrics_resource)
+    API.init_app(blueprint)
+    API.add_namespace(health_resource)
+    API.add_namespace(metrics_resource)
     flask_app.register_blueprint(blueprint)
 
 
 def main():
     logging.basicConfig(stream=eval(config.logs.stream), level=eval("logging.{}".format(config.logs.level)))
 
-    initialize_app(app)
-    logger.info('Starting %s API at http://%s:%d/api/', config.app, config.http.host, config.http.port)
+    initialize_app(APP)
+    LOGGER.info('Starting %s API at http://%s:%d/api/', config.app, config.http.host, config.http.port)
 
     taranis_service = TaranisService(mongo_host=config.db.mongo.host, mongo_port=config.db.mongo.port,
                                      mongo_username=config.db.mongo.username,
@@ -58,7 +61,7 @@ def main():
 
     GRPCServer(taranis_service, listen_address=config.grpc.host, listen_port=config.grpc.port,
                max_workers=config.grpc.max_workers).start()
-    app.run(host=config.http.host, port=config.http.port, debug=config.http.debug)
+    APP.run(host=config.http.host, port=config.http.port, debug=config.http.debug)
 
 
 if __name__ == "__main__":

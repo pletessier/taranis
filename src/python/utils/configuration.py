@@ -1,3 +1,7 @@
+# Copyright (C) 2019 Pierre Letessier
+# This source code is licensed under the BSD 3 license found in the
+# LICENSE file in the root directory of this source tree.
+
 import argparse
 import sys
 
@@ -5,11 +9,6 @@ from config import config
 from dotmap import DotMap
 
 from utils.singleton import Singleton
-
-
-# Copyright (C) 2019 Pierre Letessier
-# This source code is licensed under the BSD 3 license found in the
-# LICENSE file in the root directory of this source tree.
 
 
 class Configuration(metaclass=Singleton):
@@ -36,11 +35,11 @@ class Configuration(metaclass=Singleton):
         if args.config_files:
             configurations.extend(args.config_files)
 
-        confSet = config(*configurations, prefix="TARANIS", remove_level=0)
+        conf_set = config(*configurations, prefix="TARANIS", remove_level=0)
 
         tempdict = dict()
 
-        for key, value in confSet.as_dict().items():
+        for key, value in conf_set.as_dict().items():
             tree = key.split('.')
             root = tempdict
             for i, b in enumerate(tree):
@@ -53,5 +52,5 @@ class Configuration(metaclass=Singleton):
         self.dict = DotMap(tempdict)
 
 
-configuration = Configuration().dict
-print("Config is : \n{}".format(configuration))
+CONFIGURATION = Configuration().dict
+# print("Config is : \n{}".format(configuration))

@@ -10,18 +10,7 @@ SearchResult::SearchResult(){
 
 }
 
-SearchResult::~SearchResult(){
-//    for ( vector<int64_t>* i : *knns ) {
-//        delete i;
-//    }
-//    delete knns;
-
-//    for ( vector<float>* i : *dists ) {
-//        delete i;
-//    }
-//    delete dists;
-
-}
+SearchResult::~SearchResult() = default;
 
 vector<vector<int64_t> *> *SearchResult::getKnns() const {
     return knns;
