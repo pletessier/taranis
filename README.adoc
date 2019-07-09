@@ -102,7 +102,7 @@ Feedbacks, tests, benchmarks, issues and pull requests are welcome. For pull req
 
 == License
 
-This project is licensed under the BSD 3 License - see the LICENSE[LICENSE] file for details
+This project is licensed under the BSD 3 License - see the LICENSE file for details
 
 == Acknowledgments
 
