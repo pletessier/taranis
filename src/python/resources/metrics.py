@@ -1,10 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# Copyright (C) 2019 Pierre Letessier
+# This source code is licensed under the BSD 3 license found in the
+# LICENSE file in the root directory of this source tree.
 
 import logging
 
-from flask import Response
 import prometheus_client
+from flask import Response
 from flask_restplus import Resource
 
 from src.python.resources.restplus import api

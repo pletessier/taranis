@@ -1,0 +1,12 @@
+# Taranis
+Similarity search engine built around Faiss library
+
+.Build Docker image:
+```
+docker build -t pletessier/taranis .
+```
+
+.Run Taranis:
+```
+docker-compose up
+```

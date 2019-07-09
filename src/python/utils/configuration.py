@@ -7,6 +7,11 @@ from dotmap import DotMap
 from utils.singleton import Singleton
 
 
+# Copyright (C) 2019 Pierre Letessier
+# This source code is licensed under the BSD 3 license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 class Configuration(metaclass=Singleton):
     def __init__(self):
         parser = argparse.ArgumentParser(prog='Taranis', description='Taranis server')

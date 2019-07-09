@@ -1,3 +1,7 @@
+# Copyright (C) 2019 Pierre Letessier
+# This source code is licensed under the BSD 3 license found in the
+# LICENSE file in the root directory of this source tree.
+
 # import struct
 # from datetime import datetime
 #
@@ -14,12 +18,12 @@ import numpy as np
 from google.protobuf.internal.well_known_types import Timestamp
 from google.protobuf.json_format import ParseDict, MessageToDict
 from pymongo.errors import DuplicateKeyError
+from taranis_pb2 import NewDatabaseModel, DatabaseModel, Empty, IndexModel, NewIndexModel, VectorsReplyModel, \
+    SearchResultListModel, SearchResultModel
 
 from errors.TaranisError import TaranisError, TaranisNotFoundError, TaranisNotImplementedError, \
     TaranisAlreadyExistsError
 from repositories.mongo_db_repository import MongoDBDatabaseRepository
-from taranis_pb2 import NewDatabaseModel, DatabaseModel, Empty, IndexModel, NewIndexModel, VectorsReplyModel, \
-    SearchResultListModel, SearchResultModel
 from utils.singleton import Singleton
 
 
