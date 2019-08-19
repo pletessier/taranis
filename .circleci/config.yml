@@ -5,4 +5,6 @@ jobs:
       - image: pletessier/taranis:0.1.0
     steps:
       - checkout # check out the code in the project directory
-      - run: cd src/python/models/ && python setup.py sdist bdist_wheel
+      - run:  cd src/python/models/ && \
+              python setup.py sdist bdist_wheel && \
+              python -m twine upload --username $pypi_username --password $password dist/*
