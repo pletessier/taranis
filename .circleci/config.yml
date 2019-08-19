@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: pletessier/taranis:0.1.0
+      - image: pletessier/taranis:unstable
     steps:
       - checkout
       - run:
