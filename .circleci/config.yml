@@ -1,8 +1,8 @@
 version: 2.1
-  jobs:
-    build:
-      docker:
-        - image: pletessier/taranis:0.1.0
-      steps:
-        - checkout # check out the code in the project directory
-        - run: cd src/python/models/ && python setup.py sdist bdist_wheel
+jobs:
+  build:
+    docker:
+      - image: pletessier/taranis:0.1.0
+    steps:
+      - checkout # check out the code in the project directory
+      - run: cd src/python/models/ && python setup.py sdist bdist_wheel
