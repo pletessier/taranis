@@ -39,7 +39,7 @@ services:
       - "8081:8081"
 
   taranis:
-    image: ${DOCKER_PROXY}pletessier/taranis:0.1.0
+    image: ${DOCKER_PROXY}pletessier/taranis:0.1.1
     restart: on-failure
     command: "--config-file /opt/taranis/config.yaml"
     ports:
