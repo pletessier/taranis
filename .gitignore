@@ -32,4 +32,7 @@
 *.app
 
 src/python/.idea
+src/python/build
+src/python/dist
+src/python/taranis_cli.egg-info
 

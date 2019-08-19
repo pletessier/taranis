@@ -5,7 +5,7 @@
 import argparse
 import sys
 
-from config import config
+from config import config as python_config
 from dotmap import DotMap
 
 from utils.singleton import Singleton
@@ -35,7 +35,7 @@ class Configuration(metaclass=Singleton):
         if args.config_files:
             configurations.extend(args.config_files)
 
-        conf_set = config(*configurations, prefix="TARANIS", remove_level=0)
+        conf_set = python_config(*configurations, prefix="TARANIS", remove_level=0)
 
         tempdict = dict()
 

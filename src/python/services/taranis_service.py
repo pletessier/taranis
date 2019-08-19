@@ -7,10 +7,10 @@ Taranis Service
 """
 import json
 import logging
+from datetime import datetime
 
 import cpp_taranis
 import numpy as np
-from google.protobuf.internal.well_known_types import Timestamp
 from google.protobuf.json_format import ParseDict, MessageToDict
 from pymongo.errors import DuplicateKeyError
 
@@ -47,9 +47,8 @@ class TaranisService(metaclass=Singleton):
 
     def create_database(self, database: NewDatabaseModel):
 
-        t = Timestamp()
-        t.GetCurrentTime()
-        new_db = dict(name=database.name, created_at=t.ToMilliseconds(), updated_at=t.ToMilliseconds(), size=0)
+        t = int((datetime.utcnow() - datetime(1970, 1, 1)).total_seconds() * 1000)
+        new_db = dict(name=database.name, created_at=t, updated_at=t, size=0)
         res = self.repo.create_one_database(new_db)
         # TODO Check result
         return ParseDict(new_db, DatabaseModel(), ignore_unknown_fields=True)
@@ -106,12 +105,11 @@ class TaranisService(metaclass=Singleton):
 
     def create_index(self, index: NewIndexModel):
         try:
-            t = Timestamp()
-            t.GetCurrentTime()
+            t = int((datetime.utcnow() - datetime(1970, 1, 1)).total_seconds() * 1000)
 
             new_index = IndexModel()
-            new_index.created_at = t.ToMilliseconds()
-            new_index.updated_at = t.ToMilliseconds()
+            new_index.created_at = t
+            new_index.updated_at = t
             new_index.state = IndexModel.State.CREATED
 
             new_dict_index = MessageToDict(ParseDict(MessageToDict(index, preserving_proto_field_name=True), new_index),
@@ -158,8 +156,13 @@ class TaranisService(metaclass=Singleton):
         return ParseDict(res, IndexModel(), ignore_unknown_fields=True)
 
     def train_index(self, db_name, index_name):
+        logging.info("start train_index")
+        logging.info("start find_vectors_by_database_name")
         vectors, count, ids = self.repo.find_vectors_by_database_name(db_name, limit=1000000, skip=0)
+        logging.info("end find_vectors_by_database_name")
+        logging.info("start faiss_wrapper.train_model with " + str(count) + " vectors")
         self.faiss_wrapper.train_model(db_name, index_name, count, vectors)
+        logging.info("end faiss_wrapper.train_model")
         return Empty()
 
     # @profile

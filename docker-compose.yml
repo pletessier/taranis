@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   mongo:
-    image: mongo:4.0
+    image: ${DOCKER_PROXY}mongo:4.0
     restart: on-failure
     ports:
       - 27017:27017
@@ -11,7 +11,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
 
   mongo-express:
-    image: mongo-express
+    image: ${DOCKER_PROXY}mongo-express
     restart: on-failure
     depends_on:
       - mongo
@@ -22,14 +22,14 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: password
 
   redis:
-    image: redis
+    image: ${DOCKER_PROXY}redis
     ports:
       - 6379:6379
     command: redis-server --appendonly yes
     restart: on-failure
 
   redis-commander:
-    image: rediscommander/redis-commander:latest
+    image: ${DOCKER_PROXY}rediscommander/redis-commander:latest
     restart: on-failure
     depends_on:
       - redis
@@ -39,7 +39,8 @@ services:
       - "8081:8081"
 
   taranis:
-    image: pletessier/taranis:latest
+    image: ${DOCKER_PROXY}pletessier/taranis:0.1.0
+    restart: on-failure
     command: "--config-file /opt/taranis/config.yaml"
     ports:
       - 8000:8000

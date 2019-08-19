@@ -4,6 +4,10 @@ RUN apt-get update -y && apt-get install -y cmake cmake-data build-essential pkg
 
 WORKDIR /opt/
 
+ARG http_proxy
+ARG https_proxy
+ARG no_proxy
+
 RUN wget https://github.com/cpp-redis/cpp_redis/archive/4.3.1.zip -O cpp_redis.zip && \
     unzip cpp_redis.zip && \
     cd cpp_redis-4.3.1 && \
