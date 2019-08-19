@@ -22,7 +22,7 @@ pymongo==3.8.0
 pyrsistent==0.15.2
 python-box==3.4.0
 #python-configuration[toml, yaml]==0.1.0
-git+git://github.com/tr11/python-configuration.git
+git+https://github.com/tr11/python-configuration.git
 python-dateutil==2.8.0
 python-dotenv==0.10.2
 Python-EasyConfig==0.1.7
@@ -33,3 +33,4 @@ six==1.12.0
 toml==0.10.0
 urllib3==1.25.2
 Werkzeug==0.15.4
+twine==1.13.0
