@@ -80,25 +80,32 @@ class TaranisService(metaclass=Singleton):
             v.metadata = json.dumps(vdb["metadata"])
         return reply
 
-    def put_vectors(self, db_name, vectors, index=None):
+    def put_vectors(self, db_name, vectors, index_name=None):
 
-        vectors_to_add = []
+        count = len(vectors)
+        # TODO Get the dimension from ...
+        dimension = 128
+        db_vectors_to_add = []
+        vectors_to_encode = np.empty((count, dimension), dtype=np.float32)
+        ids = np.empty(count, dtype=np.int64)
 
-        for v in vectors:
+        for i, v in enumerate(vectors):
+            vecnp = np.frombuffer(v.data, dtype=np.float32)
+
             v_to_add = dict(id=v.id,
                             db_name=db_name,
-                            data=np.frombuffer(v.data, dtype=np.float32).tobytes(),
+                            data=vecnp.tobytes(),
                             metadata=json.loads(v.metadata))
-            # v_to_add["db_name"] = db_name
-            # v_to_add["data"] = np.frombuffer(v.data, dtype=np.float32).tobytes()
-            # v_to_add["metadata"] = json.loads(v.metadata)
-            # # Convert string data to bytes
-            # buf = struct.pack('f' * len(v["data"]), *v["data"])
-            # v["data"] = buf
-            vectors_to_add.append(v_to_add)
+            db_vectors_to_add.append(v_to_add)
+            if index_name:
+                vectors_to_encode[i, :] = vecnp
+                ids[i] = v["id"]
 
-        res = self.repo.create_vectors(vectors_to_add)
-        if not res:
+        res = self.repo.create_vectors(db_vectors_to_add)
+        if res:
+            if index_name:
+                self.faiss_wrapper.encode_vectors(db_name, index_name, count, vectors, ids)
+        else:
             raise TaranisError("Can't add these vectors in database")
 
         return Empty()
