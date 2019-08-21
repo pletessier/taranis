@@ -104,7 +104,7 @@ class TaranisService(metaclass=Singleton):
         res = self.repo.create_vectors(db_vectors_to_add)
         if res:
             if index_name:
-                self.faiss_wrapper.encode_vectors(db_name, index_name, count, vectors, ids)
+                self.faiss_wrapper.encode_vectors(db_name, index_name, count, vectors_to_encode, ids)
         else:
             raise TaranisError("Can't add these vectors in database")
 
