@@ -183,9 +183,9 @@ def run():
                 # i = i + c
                 payload = taranis_pb2.NewVectorsModel()
                 payload.db_name = DB_NAME
-                payload.db_name = INDEX_NAME
+                payload.index_name = INDEX_NAME
 
-                new_vectors = np.random.random_sample((dimension, count_vectors_per_batch))
+                new_vectors = np.float32(np.random.random_sample((dimension, count_vectors_per_batch)))
 
                 for j in range(0, count_vectors_per_batch):
                     v = payload.vectors.add()

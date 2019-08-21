@@ -99,7 +99,7 @@ class TaranisService(metaclass=Singleton):
             db_vectors_to_add.append(v_to_add)
             if index_name:
                 vectors_to_encode[i, :] = vecnp
-                ids[i] = v["id"]
+                ids[i] = v.id
 
         res = self.repo.create_vectors(db_vectors_to_add)
         if res:
