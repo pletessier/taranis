@@ -84,7 +84,7 @@ class Taranis(TaranisServicer):
 
     def addVectors(self, request: NewVectorsModel, context):
         try:
-            return self.taranis_service.put_vectors(request.db_name, request.vectors, index=request.index_name)
+            return self.taranis_service.put_vectors(request.db_name, request.vectors, index_name=request.index_name)
         except TaranisNotFoundError as ex:
             context.abort(grpc.StatusCode.NOT_FOUND, ex.message)
         except TaranisError as ex:

@@ -83,7 +83,7 @@ try:
             id += 1
             vectors.append(v)
         payload.vectors = vectors
-        api_response = api_instance.put_vectors(db_name, payload, index=index_name)
+        api_response = api_instance.put_vectors(db_name, payload, index_name=index_name)
         pprint(api_response)
 except ApiException as e:
     print("Exception when calling DbApi->put_vectors: %s\n" % e)
