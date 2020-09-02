@@ -7,7 +7,7 @@
 from setuptools import setup  # noqa: H301
 
 NAME = "taranis-cli"
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 REQUIRES = ["grpcio==1.21.1", "grpcio-tools==1.21.1"]
 
 setup(

@@ -10,10 +10,10 @@ grpc:
   max_workers: 1
 restplus:
   validate: true
-  maskSwagger: false
+  maskswagger: false
   error404Help: false
 swagger:
-  docExpansion: list
+  docexpansion: list
   title:  Taranis
   description: Taranis
   version: v0.1.0
