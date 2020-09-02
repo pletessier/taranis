@@ -11,7 +11,7 @@ grpc:
 restplus:
   validate: true
   maskswagger: false
-  error404Help: false
+  error404help: false
 swagger:
   docexpansion: list
   title:  Taranis
