@@ -5,7 +5,7 @@
 """
 Main file
 """
-import logging
+import logging.config
 # noinspection PyUnresolvedReferences
 import sys
 
