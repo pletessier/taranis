@@ -29,6 +29,21 @@ db:
     timeout_msecs: 3000
     max_reconnects: 10
     reconnect_interval_msecs: 1000
-logs:
-  level: INFO
-  stream: "sys.stdout"
+logging:
+  version: 1
+  disable_existing_loggers: true
+  formatters:
+    standard:
+      format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+  handlers:
+    default:
+      level: INFO
+      formatter: standard
+      class: logging.StreamHandler
+      stream: ext://sys.stdout
+  loggers:
+    '':
+      handlers:
+        - default
+      level: INFO
+      propagate: false
