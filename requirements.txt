@@ -11,7 +11,7 @@ git+https://github.com/tr11/python-configuration.git
 grpcio-tools==1.21.1
 grpcio==1.21.1
 itsdangerous==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 JsonForm==0.0.2
 jsonschema==3.0.1
 JsonSir==0.0.2
