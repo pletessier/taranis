@@ -24,7 +24,7 @@ python-box==3.4.0
 python-dateutil==2.8.0
 python-configuration-wrapper==1.1.0
 pytz==2019.1
-PyYAML==5.1
+PyYAML==5.4
 Resource==0.2.1
 six==1.12.0
 toml==0.10.0
