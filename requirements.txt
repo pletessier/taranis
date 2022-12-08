@@ -3,7 +3,7 @@
 aniso8601==6.0.0
 attrs==19.1.0
 bson==0.5.8
-certifi==2019.3.9
+certifi==2022.12.7
 Click==7.0
 flask-restplus==0.12.1
 Flask==1.0.3
